@@ -126,6 +126,7 @@ CREATE TABLE `usuario` (
     `usuario` VARCHAR(45) NOT NULL,
     `email` VARCHAR(45) NOT NULL,
     `senha` VARCHAR(255) NOT NULL,
+    `tipo` TINYINT NOT NULL,
     `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idusuario`),
@@ -210,8 +211,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 SHOW TABLES;
 
 use easyclinic;
-
-insert into clinica values ('30976442000139', 'SAUDE E BEM-ESTAR MEDICINA INTEGRADA');
 
 select * from usuario;
 select * from clinica;

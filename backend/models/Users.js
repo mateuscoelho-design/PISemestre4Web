@@ -22,6 +22,10 @@ const User = conn.define('usuario',{
         type: DataTypes.STRING,
         required: true
     },
+    tipo:{
+        type: DataTypes.TINYINT,
+        required: true
+    },
     clinica_cnpj:{
         type: DataTypes.STRING,
         required: true

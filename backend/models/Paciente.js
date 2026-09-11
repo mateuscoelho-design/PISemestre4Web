@@ -4,7 +4,7 @@ const {DataTypes} = require('sequelize')
 const conn = require('../db/conn.js')
 
 //definir o model user
-const Paciente = conn.define('paciente',{
+const Paciente = conn.define('pacientes',{
     idpaciente: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -20,11 +20,11 @@ const Paciente = conn.define('paciente',{
     },
     telefone:{
         type: DataTypes.STRING,
-        required: true
+        //required: true
     },
     email:{
         type: DataTypes.STRING,
-        required: true
+        //required: true
     },
     complemento:{
         type: DataTypes.STRING,
@@ -34,13 +34,14 @@ const Paciente = conn.define('paciente',{
     },
     plano_idplano:{
         type: DataTypes.INTEGER,
+        required: true
     },
     clinica_cnpj:{
         type: DataTypes.STRING,
         required: true
     }
 }, {
-    tableName: 'tag',
+    tableName: 'pacientes',
     timestamps: false
 })
 

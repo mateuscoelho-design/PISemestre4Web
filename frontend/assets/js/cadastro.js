@@ -8,6 +8,9 @@ document.getElementById('btnCadastrar').addEventListener('click', async (event) 
     const senha = document.getElementById('senha').value;
     const confirmarSenha = document.getElementById('confirmarSenha').value;
 
+    // tipo = 1 MASTER || tipo = 2 USUARIO NORMAL
+    const tipo = 1
+
     if (senha !== confirmarSenha) {
         alert('As senhas não coincidem!');
         return;
@@ -39,6 +42,7 @@ document.getElementById('btnCadastrar').addEventListener('click', async (event) 
                 usuario: usuario,
                 email: email,
                 senha: senha,
+                tipo: tipo,
                 clinica_cnpj: cnpj
             })
         });
@@ -52,7 +56,7 @@ document.getElementById('btnCadastrar').addEventListener('click', async (event) 
         }
 
         alert('Clínica e Usuário cadastrados com sucesso!');
-        window.location.href = '../views/inicio.html';
+        window.location.href = '../views/indexs.html';
 
     } catch (error) {
         console.error('Detalhes do Erro:', error);

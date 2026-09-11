@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt')
 
 module.exports = class UserController{
     static async register(req, res){
-        const {usuario, email, senha, clinica_cnpj} = req.body
+        const {usuario, email, senha, tipo, clinica_cnpj} = req.body
 
         //criptografar senha
         const salt = await bcrypt.genSalt(12)
@@ -20,6 +20,7 @@ module.exports = class UserController{
                 usuario: usuario,
                 email: email,
                 senha: passwordHash,
+                tipo: tipo,
                 clinica_cnpj: clinica_cnpj
             })
             res.status(200).json({message:'Usuario Cadastrado com sucesso'})

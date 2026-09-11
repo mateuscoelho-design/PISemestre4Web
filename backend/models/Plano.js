@@ -31,7 +31,7 @@ const Plano = conn.define('plano',{
         required: true
     }
 }, {
-    tableName: 'tag',
+    tableName: 'plano',
     timestamps: false
 })
 

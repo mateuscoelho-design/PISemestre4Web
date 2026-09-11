@@ -6,7 +6,7 @@ const conn = require('../db/conn.js')
 //definir o model user
 const Clinica = conn.define('clinica',{
     cnpj: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         primaryKey: true,
     },
     nome:{

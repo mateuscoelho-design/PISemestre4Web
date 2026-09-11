@@ -15,11 +15,11 @@ const Agenda = conn.define('agenda',{
         required: true
     },
     doutor_iddoutor:{
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         required: true
     },
     pacientes_idpacientes:{
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         required: true
     },
     clinica_cnpj:{
@@ -27,7 +27,7 @@ const Agenda = conn.define('agenda',{
         required: true
     }
 }, {
-    tableName: 'tag',
+    tableName: 'agenda',
     timestamps: false
 })
 
