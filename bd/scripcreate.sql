@@ -156,7 +156,7 @@ CREATE TABLE `doutor` (
     `iddoutor` INT NOT NULL auto_increment,
     `nome` VARCHAR(45) NOT NULL,
     `especialidade` VARCHAR(45) NOT NULL,
-    `clinica_cnpj` VARCHAR(14) NOT NULL,
+    `clinica_cnpj` INT NOT NULL,
     `documento` INT NOT NULL,
 
     PRIMARY KEY (`iddoutor`),
