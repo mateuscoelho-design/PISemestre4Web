@@ -5,6 +5,7 @@ import type { FormEvent } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { PatientForm } from '../forms/PatientForm'
 import { ProfessionalForm } from '../forms/ProfessionalForm'
+import { ServicoForm } from '../forms/ServicoForm'
 import { API_URL } from '../../services/api'
 
 type NovaConsultaModalProps = {
@@ -37,7 +38,7 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
   const [doutores, setDoutores] = useState<PessoaOption[]>([])
   const [servicos, setServicos] = useState<ServicoOption[]>([])
   const [carregandoOpcoes, setCarregandoOpcoes] = useState(true)
-  const [cadastroAberto, setCadastroAberto] = useState<'paciente' | 'profissional' | null>(null)
+  const [cadastroAberto, setCadastroAberto] = useState<'paciente' | 'profissional' | 'servico' | null>(null)
   const [avisoCadastro, setAvisoCadastro] = useState('')
   const { token, user } = useAuth()
 
@@ -71,7 +72,7 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
     carregarPessoas()
   }, [token])
 
-  async function handleCadastroConcluido(tipo: 'paciente' | 'profissional', values: Record<string, string>) {
+  async function handleCadastroConcluido(tipo: 'paciente' | 'profissional' | 'servico', values: Record<string, string>) {
     setCadastroAberto(null)
     setCarregandoOpcoes(true)
     setErro('')
@@ -79,12 +80,23 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
       const headers: Record<string, string> = token
         ? { Authorization: `Bearer ${token}` }
         : {}
-      const caminho = tipo === 'paciente' ? '/pacientes/listarByCNPJ' : '/doutores/listarByCNPJ'
+      const caminho = tipo === 'paciente' ? '/pacientes/listarByCNPJ' : tipo === 'profissional' ? '/doutores/listarByCNPJ' : '/servicos'
       const resposta = await fetch(`${API_URL}${caminho}`, { headers })
       const dados = await resposta.json()
       if (!resposta.ok) throw new Error(dados.message || 'Não foi possível atualizar a lista.')
 
-      if (tipo === 'paciente') {
+      if (tipo === 'servico') {
+        const lista: ServicoOption[] = dados.servicos ?? []
+        const idsAnteriores = new Set(servicos.map((servico) => servico.idservico))
+        setServicos(lista)
+        const novo = lista.find((servico) =>
+          !idsAnteriores.has(servico.idservico) &&
+          servico.nome.trim().toLowerCase() === values.nome.trim().toLowerCase() &&
+          Number(servico.preco) === Number(values.preco)
+        )
+        if (novo) setServicoId(String(novo.idservico))
+        else setErro('Serviço cadastrado, mas não foi possível selecioná-lo automaticamente. Selecione-o na lista.')
+      } else if (tipo === 'paciente') {
         const lista: PessoaOption[] = dados.pacientes ?? []
         setPacientes(lista)
         const cpf = values.cpf.replace(/\D/g, '')
@@ -176,7 +188,7 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
               onCancel={() => setCadastroAberto(null)}
               onSaved={(values) => { void handleCadastroConcluido('paciente', values) }}
             />
-          ) : (
+          ) : cadastroAberto === 'profissional' ? (
             <ProfessionalForm
               onNavigate={() => setCadastroAberto(null)}
               onNotice={setAvisoCadastro}
@@ -184,6 +196,15 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
               embedded
               onCancel={() => setCadastroAberto(null)}
               onSaved={(values) => { void handleCadastroConcluido('profissional', values) }}
+            />
+          ) : (
+            <ServicoForm
+              onNavigate={() => setCadastroAberto(null)}
+              onNotice={setAvisoCadastro}
+              notice={avisoCadastro}
+              embedded
+              onCancel={() => setCadastroAberto(null)}
+              onSaved={(values) => { void handleCadastroConcluido('servico', values) }}
             />
           )}
         </div>
@@ -231,7 +252,16 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
             onChange={setDoutorId}
           />
           <div className="space-y-1">
-            <label className="block text-sm text-gray-600" htmlFor="consulta-servico">Serviço</label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="block text-sm text-gray-600" htmlFor="consulta-servico">Serviço</label>
+              <button
+                className="cursor-pointer text-sm font-medium text-[#4f7161] hover:underline"
+                type="button"
+                onClick={() => { setAvisoCadastro(''); setCadastroAberto('servico') }}
+              >
+                + Cadastrar novo serviço
+              </button>
+            </div>
             <select
               className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm focus:border-[#4f7161] focus:outline-none focus:ring-2 focus:ring-[#4f7161]/20"
               id="consulta-servico"

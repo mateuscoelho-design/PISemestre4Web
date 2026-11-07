@@ -20,6 +20,7 @@ export function EntityForm({
   embedded = false,
   onSaved,
   onCancel,
+  fieldActions,
 }: {
   title: string
   back: Page
@@ -35,6 +36,7 @@ export function EntityForm({
   embedded?: boolean
   onSaved?: (values: Record<string, string>) => void
   onCancel?: () => void
+  fieldActions?: Record<string, { label: string; onClick: () => void }>
 }) {
   const [values, setValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(fields.map((field) => [field.name, String(initialValues?.[field.name] ?? '')])),
@@ -94,14 +96,24 @@ export function EntityForm({
       {notice && <p className="notice">{notice}</p>}
       <form onSubmit={submit}>
         {fields.map((field) => (
-          <EntityField
-            key={field.name}
-            field={field}
-            value={values[field.name]}
-            onChange={(value) =>
-              setValues((current) => ({ ...current, [field.name]: value }))
-            }
-          />
+          <div key={field.name} className="relative">
+            {fieldActions?.[field.name] && (
+              <button
+                className="absolute right-0 top-0 cursor-pointer text-sm font-medium text-[#4f7161] hover:underline"
+                type="button"
+                onClick={fieldActions[field.name].onClick}
+              >
+                + {fieldActions[field.name].label}
+              </button>
+            )}
+            <EntityField
+              field={field}
+              value={values[field.name]}
+              onChange={(value) =>
+                setValues((current) => ({ ...current, [field.name]: value }))
+              }
+            />
+          </div>
         ))}
         <button className='cadastrar' type="submit">{submitLabel}</button>
       </form>

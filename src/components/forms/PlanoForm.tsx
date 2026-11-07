@@ -2,7 +2,14 @@ import type { FormProps, PlanoItem } from '../../types'
 import { EntityForm } from './EntityForm'
 
 // Formulario
-export function PlanoForm({ onNavigate, onNotice, notice, item }: FormProps & { item?: PlanoItem }) {
+export function PlanoForm({
+  onNavigate, onNotice, notice, item, embedded, onSaved, onCancel,
+}: FormProps & {
+  item?: PlanoItem
+  embedded?: boolean
+  onSaved?: (values: Record<string, string>) => void
+  onCancel?: () => void
+}) {
   return (
     <EntityForm
       title={item ? 'Editar Plano' : 'Cadastrar Plano'}
@@ -11,6 +18,9 @@ export function PlanoForm({ onNavigate, onNotice, notice, item }: FormProps & { 
       onNavigate={onNavigate}
       onNotice={onNotice}
       notice={notice}
+      embedded={embedded}
+      onSaved={onSaved}
+      onCancel={onCancel}
       initialValues={item ? {
         ...item,
         aplicadesconto: Number(item.aplicadesconto) === 1,

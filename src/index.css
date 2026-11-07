@@ -103,3 +103,16 @@ body {
     min-width: 760px;
   }
 }
+
+
+/* Cursor de mão nos botões clicáveis */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+
+/* Cursor de mão nas caixas de seleção */
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled) {
+  cursor: pointer;
+}
