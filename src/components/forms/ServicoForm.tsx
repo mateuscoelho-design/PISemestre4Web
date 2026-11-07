@@ -1,7 +1,14 @@
 import type { FormProps, ServicoItem } from '../../types'
 import { EntityForm } from './EntityForm'
 
-export function ServicoForm({ onNavigate, onNotice, notice, item }: FormProps & { item?: ServicoItem }) {
+export function ServicoForm({
+  onNavigate, onNotice, notice, item, embedded, onSaved, onCancel,
+}: FormProps & {
+  item?: ServicoItem
+  embedded?: boolean
+  onSaved?: (values: Record<string, string>) => void
+  onCancel?: () => void
+}) {
   return (
     <EntityForm
       title={item ? 'Editar Serviço' : 'Cadastrar Serviço'}
@@ -10,6 +17,9 @@ export function ServicoForm({ onNavigate, onNotice, notice, item }: FormProps & 
       onNavigate={onNavigate}
       onNotice={onNotice}
       notice={notice}
+      embedded={embedded}
+      onSaved={onSaved}
+      onCancel={onCancel}
       initialValues={item}
       submitLabel={item ? 'Salvar alterações' : 'Cadastrar'}
       fields={[

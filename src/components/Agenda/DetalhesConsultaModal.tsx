@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { Assets } from '../AssetsClass'
 import { API_URL } from '../../services/api'
+import { PatientAnamneseModal } from '../PatientAnamneseModal'
 
 type DetalhesConsultaModalProps = {
   consulta: {
@@ -22,6 +23,7 @@ type DetalhesConsultaModalProps = {
 }
 
 export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }: DetalhesConsultaModalProps) {
+  const [anamneseAberta, setAnamneseAberta] = useState(false)
   const [confirmando, setConfirmando] = useState(false)
   const [apagando, setApagando] = useState(false)
   const [erro, setErro] = useState('')
@@ -78,7 +80,18 @@ export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }:
         <dl className="space-y-4 text-sm">
           <div>
             <dt className="text-gray-500">Paciente</dt>
-            <dd className="font-semibold text-gray-800">{consulta.pacienteNome}</dd>
+            <dd className="flex items-center gap-2 font-semibold text-gray-800">
+              <span>{consulta.pacienteNome}</span>
+              <button
+                aria-label={`Abrir anamnese de ${consulta.pacienteNome}`}
+                className="rounded-md px-2 py-1 text-xl font-bold text-[#3f5c4f] transition hover:bg-[#3f5c4f] hover:text-white"
+                onClick={() => setAnamneseAberta(true)}
+                title="Abrir anamnese"
+                type="button"
+              >
+                🗒
+              </button>
+            </dd>
           </div>
           <div>
             <dt className="text-gray-500">Doutor(a)</dt>
@@ -208,6 +221,13 @@ export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }:
           </div>
         </div>
       </section>
+      {anamneseAberta && (
+        <PatientAnamneseModal
+          patient={{ idpacientes: consulta.pacienteId, nome: consulta.pacienteNome }}
+          onClose={() => setAnamneseAberta(false)}
+          onSaved={() => setAnamneseAberta(false)}
+        />
+      )}
     </div>
   )
 }
