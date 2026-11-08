@@ -729,13 +729,19 @@ CHAVETOKEN
 
 Crie um arquivo `.env` dentro da pasta `backend`.
 
-Exemplo:
+Gere uma chave aleatória localmente:
 
-```env
-CHAVETOKEN=sua_chave_jwt
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Não versione uma chave real de produção no repositório.
+Copie o valor gerado para o arquivo `backend/.env`:
+
+```env
+CHAVETOKEN=cole_aqui_o_valor_gerado
+```
+
+O servidor carrega esse arquivo mesmo quando iniciado a partir de outra pasta e não inicia se a variável estiver ausente. Não versione uma chave real de produção no repositório.
 
 ---
 

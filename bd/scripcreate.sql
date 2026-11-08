@@ -1,44 +1,25 @@
 -- =====================================================
--- EASYCLINIC - BANCO DE DADOS COMPLETO
--- Compatível com MariaDB
+-- EASYCLINIC - schema para MySQL (RDS)
+-- Uso (na EC2):
+--   mysql -h ENDPOINT_RDS -u admin -p easyclinic < database/schema.sql
+-- O banco "easyclinic" ja deve existir (Initial database name no RDS).
+-- Nao apaga nada: pode rodar mais de uma vez.
+-- CNPJ e VARCHAR(14) para bater com o model (STRING) e com o
+-- validator (14 caracteres).
 -- =====================================================
 
--- Desativa temporariamente as verificações
-SET FOREIGN_KEY_CHECKS = 0;
-
--- =====================================================
--- APAGA O BANCO EXISTENTE
--- ATENÇÃO: isso apaga todas as tabelas e dados!
--- =====================================================
-
-DROP DATABASE IF EXISTS `easyclinic`;
-
--- =====================================================
--- CRIA O BANCO
--- =====================================================
-
-CREATE DATABASE `easyclinic`
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
-
-USE `easyclinic`;
-
--- =====================================================
--- TABELA: clinica
--- =====================================================
-
-CREATE TABLE `clinica` (
-    `cnpj` INT NOT NULL auto_increment,
+CREATE TABLE IF NOT EXISTS `clinica` (
+    `cnpj` VARCHAR(14) NOT NULL,
     `nome` VARCHAR(45) NOT NULL,
 
     PRIMARY KEY (`cnpj`)
 ) ENGINE = InnoDB;
 
-CREATE TABLE `servicos` (
+CREATE TABLE IF NOT EXISTS `servicos` (
     `idservico` INT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(45) NOT NULL,
     `preco` float not null,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idservico`),
     INDEX `fk_servico_clinica1_idx` (`clinica_cnpj`),
@@ -54,10 +35,10 @@ CREATE TABLE `servicos` (
 -- TABELA: tag
 -- =====================================================
 
-CREATE TABLE `tag` (
+CREATE TABLE IF NOT EXISTS `tag` (
     `idtag` INT NOT NULL auto_increment,
     `descricao` VARCHAR(45) NOT NULL,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idtag`),
 
@@ -74,13 +55,13 @@ CREATE TABLE `tag` (
 -- TABELA: plano
 -- =====================================================
 
-CREATE TABLE `plano` (
+CREATE TABLE IF NOT EXISTS `plano` (
     `idplano` INT NOT NULL auto_increment,
     `descricao` VARCHAR(45) NOT NULL,
     `aplicadesconto` TINYINT NOT NULL,
     `valordesconto` FLOAT NOT NULL,
     `exonera` TINYINT NOT NULL,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idplano`),
 
@@ -97,7 +78,7 @@ CREATE TABLE `plano` (
 -- TABELA: pacientes
 -- =====================================================
 
-CREATE TABLE `pacientes` (
+CREATE TABLE IF NOT EXISTS `pacientes` (
     `idpacientes` INT NOT NULL auto_increment,
     `nome` VARCHAR(45) NOT NULL,
     `cpf` VARCHAR(45) NULL,
@@ -105,7 +86,7 @@ CREATE TABLE `pacientes` (
     `email` VARCHAR(45) NOT NULL,
     `complemento` VARCHAR(45) NULL,
     `plano_idplano` INT NOT NULL,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idpacientes`),
 
@@ -129,13 +110,13 @@ CREATE TABLE `pacientes` (
 -- TABELA: usuario
 -- =====================================================
 
-CREATE TABLE `usuario` (
+CREATE TABLE IF NOT EXISTS `usuario` (
     `idusuario` INT NOT NULL auto_increment,
     `usuario` VARCHAR(45) NOT NULL,
     `email` VARCHAR(45) NOT NULL,
     `senha` VARCHAR(255) NOT NULL,
     `tipo` TINYINT NOT NULL,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idusuario`),
 
@@ -152,11 +133,11 @@ CREATE TABLE `usuario` (
 -- TABELA: doutor
 -- =====================================================
 
-CREATE TABLE `doutor` (
+CREATE TABLE IF NOT EXISTS `doutor` (
     `iddoutor` INT NOT NULL auto_increment,
     `nome` VARCHAR(45) NOT NULL,
     `especialidade` VARCHAR(45) NOT NULL,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
     `documento` INT NOT NULL,
 
     PRIMARY KEY (`iddoutor`),
@@ -174,13 +155,13 @@ CREATE TABLE `doutor` (
 -- TABELA: agenda
 -- =====================================================
 
-CREATE TABLE `agenda` (
+CREATE TABLE IF NOT EXISTS `agenda` (
     `idagenda` INT NOT NULL auto_increment,
     `datahora` DATETIME NOT NULL,
     `doutor_iddoutor` INT NOT NULL,
     `pacientes_idpacientes` INT NOT NULL,
     `servico_idservico` INT NOT NULL,
-    `clinica_cnpj` INT NOT NULL,
+    `clinica_cnpj` VARCHAR(14) NOT NULL,
 
     PRIMARY KEY (`idagenda`),
 
@@ -215,9 +196,9 @@ CREATE TABLE `agenda` (
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `easyclinic`.`anaminese`
+-- Table `anaminese`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `easyclinic`.`anaminese` (
+CREATE TABLE IF NOT EXISTS `anaminese` (
   `idanaminese` INT NOT NULL AUTO_INCREMENT,
   `queixas` VARCHAR(255) NULL,
   `historicoatual` VARCHAR(255) NULL,
@@ -228,15 +209,15 @@ CREATE TABLE IF NOT EXISTS `easyclinic`.`anaminese` (
   `historicofamiliar` VARCHAR(255) NULL,
   `pacientes_idpacientes` INT NOT NULL,
   PRIMARY KEY (`idanaminese`),
-  INDEX `fk_anaminese_pacientes1_idx` (`pacientes_idpacientes` ASC),
+  INDEX `fk_anaminese_pacientes1_idx` (`pacientes_idpacientes` ),
   CONSTRAINT `fk_anaminese_pacientes1`
     FOREIGN KEY (`pacientes_idpacientes`)
-    REFERENCES `easyclinic`.`pacientes` (`idpacientes`)
+    REFERENCES `pacientes` (`idpacientes`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-CREATE TABLE `tagpaciente` (
+CREATE TABLE IF NOT EXISTS `tagpaciente` (
     `id` INT NOT NULL auto_increment,
     `tag_idtag` int NOT NULL,
     `pacientes_idpacientes` INT NOT NULL,

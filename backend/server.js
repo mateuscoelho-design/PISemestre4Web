@@ -1,3 +1,10 @@
+require('dotenv').config({ path: require('path').join(__dirname, '.env') })
+
+if (!process.env.CHAVETOKEN?.trim()) {
+    console.error('CHAVETOKEN não configurada. Defina essa variável no ambiente ou em backend/.env.')
+    process.exit(1)
+}
+
 //requere o express
 const express = require('express')
 //instacia do express
@@ -27,6 +34,8 @@ const agendaRoutes = require('./routers/agendaRoutes.js')
 const anamineseRoutes = require('./routers/anamineseRoutes.js')
 const documentRoutes = require('./routers/documentRoutes.js')
 const tagpacienteRoutes = require('./routers/tagpacienteRoutes.js')
+
+api.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 
 //configurando JSON response
 api.use(express.json())
