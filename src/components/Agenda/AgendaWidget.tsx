@@ -38,6 +38,7 @@ type ConsultaSelecionada = {
     inicio: Date
     pacienteId: number
     doutorId: number
+    servicoId: number | null
     pacienteNome: string
     pacienteTelefone?: string
     pacienteEmail?: string
@@ -88,6 +89,8 @@ export function Agenda({ permitirNavegacao = false }: { permitirNavegacao?: bool
     inicioSemana.setHours(0, 0, 0, 0)
     const fimSemana = new Date(inicioSemana)
     fimSemana.setDate(fimSemana.getDate() + 7)
+    // Mostra o horário atual com uma hora anterior visível ao abrir a agenda.
+    const horarioInicial = `${String(Math.max(0, new Date().getHours() - 1)).padStart(2, '0')}:00:00`
     // Como combinado gente, os agendamentos serão feitos através de
     // um botão que abre uma janela na tela para inserir as informacoes
 
@@ -187,6 +190,7 @@ export function Agenda({ permitirNavegacao = false }: { permitirNavegacao?: bool
                     extendedProps: {
                         pacienteId: agendamento.pacientes_idpacientes,
                         doutorId: agendamento.doutor_iddoutor,
+                        servicoId: agendamento.servico_idservico,
                         pacienteNome,
                         pacienteTelefone: paciente?.telefone,
                         pacienteEmail: paciente?.email,
@@ -205,7 +209,7 @@ export function Agenda({ permitirNavegacao = false }: { permitirNavegacao?: bool
 
     // quando a pessoa clica em um evento(agendamento)
     function handleEventClick(info: EventClickArg) {
-        const detalhes = info.event.extendedProps as Pick<ConsultaSelecionada, 'pacienteId' | 'doutorId' | 'pacienteNome' | 'pacienteTelefone' | 'pacienteEmail' | 'doutorNome' | 'servicoNome' | 'servicoPreco' | 'status'>
+        const detalhes = info.event.extendedProps as Pick<ConsultaSelecionada, 'pacienteId' | 'doutorId' | 'servicoId' | 'pacienteNome' | 'pacienteTelefone' | 'pacienteEmail' | 'doutorNome' | 'servicoNome' | 'servicoPreco' | 'status'>
         setEventoSelecionado({
             id: info.event.id,
             titulo: info.event.title,
@@ -247,7 +251,9 @@ export function Agenda({ permitirNavegacao = false }: { permitirNavegacao?: bool
                     locale={ptBrLocale}
                     eventClick={handleEventClick}
                     events={eventos}
-                    height="auto"
+                    height={650}
+                    nowIndicator={true}
+                    scrollTime={horarioInicial}
                     slotMinTime="00:00:00"
                     slotMaxTime="24:00:00"
                     slotEventOverlap={false}
@@ -279,6 +285,11 @@ export function Agenda({ permitirNavegacao = false }: { permitirNavegacao?: bool
                     aoExcluir={() => {
                         setEventoSelecionado(null)
                         buscarAgendamentos()
+                    }}
+                    aoAtualizar={(dataHora) => {
+                        setEventoSelecionado(null)
+                        calendarioRef.current?.getApi().gotoDate(parseDataHoraLocal(dataHora))
+                        void buscarAgendamentos()
                     }}
                 />
             )}

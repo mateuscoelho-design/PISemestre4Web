@@ -116,3 +116,12 @@ input[type="checkbox"]:not(:disabled),
 input[type="radio"]:not(:disabled) {
   cursor: pointer;
 }
+
+/* Esconde a barra de rolagem no cabeçalho da agenda */
+.agenda-calendar .fc-scrollgrid-section-header .fc-scroller {
+  scrollbar-width: none;
+}
+
+.agenda-calendar .fc-scrollgrid-section-header .fc-scroller::-webkit-scrollbar {
+  display: none;
+}

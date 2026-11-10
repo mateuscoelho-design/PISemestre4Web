@@ -4,6 +4,7 @@ import { API_URL, fetchWithToken, readResponse, messageFrom, post } from '../ser
 import { Sidebar } from '../components/Sidebar/Sidebar'
 import { ListActions } from '../components/common/ListActions'
 import { PatientAnamneseModal } from '../components/PatientAnamneseModal'
+import { PatientHistoryModal } from '../components/PatientHistoryModal'
 
 export function RecordsPage({
   kind,
@@ -18,6 +19,7 @@ export function RecordsPage({
   const [query, setQuery] = useState('')
   const [error, setError] = useState(false)
   const [anamnesePatient, setAnamnesePatient] = useState<RecordItem | null>(null)
+  const [historicoPatient, setHistoricoPatient] = useState<RecordItem | null>(null)
   const [notice, setNotice] = useState('')
   const isPatients = kind === 'pacientes'
 
@@ -59,6 +61,14 @@ export function RecordsPage({
     setAnamnesePatient(item)
   }
 
+  const beginHistorico = (item: RecordItem) => {
+    if (!item.idpaciente && !item.idpacientes) {
+      window.alert('Não foi possível identificar o paciente.')
+      return
+    }
+    setHistoricoPatient(item)
+  }
+
   return (
     <Sidebar active={kind} onNavigate={onNavigate}>
       {notice && (
@@ -97,6 +107,7 @@ export function RecordsPage({
                   onEdit={() => onEdit(item)}
                   onDelete={() => deleteItem(item)}
                   onAddAnamnese={isPatients ? () => beginAnamnese(item) : undefined}
+                  onViewHistory={isPatients ? () => beginHistorico(item) : undefined}
                   patientName={isPatients ? item.nome : undefined}
                 />
               </li>
@@ -110,6 +121,15 @@ export function RecordsPage({
           )}
         </ul>
       </div>
+      {historicoPatient && (
+        <PatientHistoryModal
+          patient={{
+            id: historicoPatient.idpaciente ?? historicoPatient.idpacientes!,
+            nome: historicoPatient.nome,
+          }}
+          onClose={() => setHistoricoPatient(null)}
+        />
+      )}
       {anamnesePatient && (
         <PatientAnamneseModal
           patient={anamnesePatient}

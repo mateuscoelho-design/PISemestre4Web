@@ -8,9 +8,24 @@ import { ProfessionalForm } from '../forms/ProfessionalForm'
 import { ServicoForm } from '../forms/ServicoForm'
 import { API_URL } from '../../services/api'
 
+export type ConsultaParaEdicao = {
+  id: string
+  pacienteId: number
+  doutorId: number
+  servicoId: number | null
+  inicio: Date
+}
+
 type NovaConsultaModalProps = {
   aoFechar: () => void
   aoSalvar: (dataHora: string) => void
+  consultaEditar?: ConsultaParaEdicao
+}
+
+// Converte a data para o formato local aceito pelo campo datetime-local.
+function dataHoraParaInput(data: Date) {
+  const doisDigitos = (valor: number) => String(valor).padStart(2, '0')
+  return `${data.getFullYear()}-${doisDigitos(data.getMonth() + 1)}-${doisDigitos(data.getDate())}T${doisDigitos(data.getHours())}:${doisDigitos(data.getMinutes())}`
 }
 
 type PessoaOption = {
@@ -27,11 +42,11 @@ type ServicoOption = {
   preco: number
 }
 
-export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaModalProps) {
-  const [pacienteId, setPacienteId] = useState('')
-  const [doutorId, setDoutorId] = useState('')
-  const [servicoId, setServicoId] = useState('')
-  const [dataHora, setDataHora] = useState('')
+export default function NovaConsultaModal({ aoFechar, aoSalvar, consultaEditar }: NovaConsultaModalProps) {
+  const [pacienteId, setPacienteId] = useState(consultaEditar ? String(consultaEditar.pacienteId) : '')
+  const [doutorId, setDoutorId] = useState(consultaEditar ? String(consultaEditar.doutorId) : '')
+  const [servicoId, setServicoId] = useState(consultaEditar?.servicoId != null ? String(consultaEditar.servicoId) : '')
+  const [dataHora, setDataHora] = useState(consultaEditar ? dataHoraParaInput(consultaEditar.inicio) : '')
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [pacientes, setPacientes] = useState<PessoaOption[]>([])
@@ -137,11 +152,18 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
       setErro('Não foi possível identificar a clínica desta conta.')
       return
     }
-    const dataHoraUtc = new Date(dataHora).toISOString()
+    const horario = new Date(dataHora)
+    if (!dataHora || Number.isNaN(horario.getTime())) {
+      setErro('Informe uma data e um horário válidos.')
+      return
+    }
+    const dataHoraUtc = horario.toISOString()
     setSalvando(true)
     try {
-      const resposta = await fetch(`${API_URL}/agenda`, {
-        method: 'POST',
+      const resposta = await fetch(consultaEditar
+        ? `${API_URL}/agenda/update/${consultaEditar.id}`
+        : `${API_URL}/agenda`, {
+        method: consultaEditar ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -163,13 +185,13 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
         } catch {
           erro = { message: texto }
         }
-        setErro(erro.message || erro.error || 'Erro ao criar agendamento')
+        setErro(erro.message || erro.error || 'Não foi possível salvar o agendamento.')
         return
       }
 
       aoSalvar(dataHora)
     } catch (error) {
-      setErro(error instanceof Error ? error.message : 'Erro ao criar agendamento')
+      setErro(error instanceof Error ? error.message : 'Não foi possível salvar o agendamento.')
     } finally {
       setSalvando(false)
     }
@@ -226,7 +248,7 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
         role="dialog"
       >
         <h2 id="nova-consulta-titulo" className="mb-6 text-2xl font-bold text-[#4f7161]">
-          Nova Consulta
+          {consultaEditar ? 'Editar Consulta' : 'Nova Consulta'}
         </h2>
         <form className="space-y-4" onSubmit={handleSalvar}>
           <SearchablePersonSelect
@@ -308,7 +330,7 @@ export default function NovaConsultaModal({ aoFechar, aoSalvar }: NovaConsultaMo
               disabled={salvando || carregandoOpcoes || pacientes.length === 0 || doutores.length === 0 || servicos.length === 0}
               type="submit"
             >
-              {salvando ? 'Salvando...' : 'Salvar consulta'}
+              {salvando ? 'Salvando...' : consultaEditar ? 'Salvar alterações' : 'Salvar consulta'}
             </button>
           </div>
         </form>
