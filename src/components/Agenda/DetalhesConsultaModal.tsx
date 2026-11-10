@@ -3,12 +3,15 @@ import { useAuth } from '../../context/AuthContext'
 import { Assets } from '../AssetsClass'
 import { API_URL } from '../../services/api'
 import { PatientAnamneseModal } from '../PatientAnamneseModal'
+import { PatientHistoryButton, PatientHistoryModal } from '../PatientHistoryModal'
+import NovaConsultaModal from './NovaConsultaModal'
 
 type DetalhesConsultaModalProps = {
   consulta: {
     id: string
     pacienteId: number
     doutorId: number
+    servicoId: number | null
     pacienteNome: string
     pacienteTelefone?: string
     pacienteEmail?: string
@@ -20,10 +23,13 @@ type DetalhesConsultaModalProps = {
   }
   aoFechar: () => void
   aoExcluir: () => void
+  aoAtualizar: (dataHora: string) => void
 }
 
-export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }: DetalhesConsultaModalProps) {
+export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir, aoAtualizar }: DetalhesConsultaModalProps) {
+  const [editando, setEditando] = useState(false)
   const [anamneseAberta, setAnamneseAberta] = useState(false)
+  const [historicoAberto, setHistoricoAberto] = useState(false)
   const [confirmando, setConfirmando] = useState(false)
   const [apagando, setApagando] = useState(false)
   const [erro, setErro] = useState('')
@@ -74,9 +80,20 @@ export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }:
         className="w-full max-w-md rounded-[10px] bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.2)] md:p-8"
         role="dialog"
       >
-        <h2 id="detalhes-consulta-titulo" className="mb-6 text-xl font-bold text-[#4f7161]">
-          Detalhes da Consulta
-        </h2>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <h2 id="detalhes-consulta-titulo" className="text-xl font-bold text-[#4f7161]">
+            Detalhes da Consulta
+          </h2>
+          <button
+            className="shrink-0 rounded-md px-3 py-2 text-sm font-semibold text-[#3f5c4f] transition hover:bg-[#edf4ef]"
+            disabled={apagando}
+            onClick={() => setEditando(true)}
+            title="Editar agendamento"
+            type="button"
+          >
+            ✎ Editar
+          </button>
+        </div>
         <dl className="space-y-4 text-sm">
           <div>
             <dt className="text-gray-500">Paciente</dt>
@@ -91,6 +108,10 @@ export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }:
               >
                 🗒
               </button>
+              <PatientHistoryButton
+                patientName={consulta.pacienteNome}
+                onClick={() => setHistoricoAberto(true)}
+              />
             </dd>
           </div>
           <div>
@@ -221,6 +242,22 @@ export default function DetalhesConsultaModal({ consulta, aoFechar, aoExcluir }:
           </div>
         </div>
       </section>
+      {editando && (
+        <NovaConsultaModal
+          consultaEditar={consulta}
+          aoFechar={() => setEditando(false)}
+          aoSalvar={(dataHora) => {
+            setEditando(false)
+            aoAtualizar(dataHora)
+          }}
+        />
+      )}
+      {historicoAberto && (
+        <PatientHistoryModal
+          patient={{ id: consulta.pacienteId, nome: consulta.pacienteNome }}
+          onClose={() => setHistoricoAberto(false)}
+        />
+      )}
       {anamneseAberta && (
         <PatientAnamneseModal
           patient={{ idpacientes: consulta.pacienteId, nome: consulta.pacienteNome }}

@@ -1,6 +1,42 @@
 const Agenda = require('../models/Agenda')
 const Servicos = require('../models/Services')
+const Paciente = require('../models/Paciente')
+const Doutor = require('../models/Doutor')
 const { QueryTypes } = require('sequelize')
+
+// Valida os dados usados tanto no cadastro quanto na edição de consultas.
+async function validarDadosConsulta(dados, clinicaCnpj) {
+    const pacienteId = Number(dados.pacientes_idpacientes)
+    const doutorId = Number(dados.doutor_iddoutor)
+    const servicoId = Number(dados.servico_idservico)
+    const data = typeof dados.datahora === 'string' ? new Date(dados.datahora) : new Date(NaN)
+
+    if (![pacienteId, doutorId, servicoId].every(id => Number.isInteger(id) && id > 0)) {
+        return { status: 400, message: 'Selecione um paciente, um profissional e um serviço válidos.' }
+    }
+    if (Number.isNaN(data.getTime())) {
+        return { status: 400, message: 'Informe uma data e um horário válidos.' }
+    }
+
+    const [paciente, doutor, servico] = await Promise.all([
+        Paciente.findOne({ where: { idpacientes: pacienteId, clinica_cnpj: clinicaCnpj } }),
+        Doutor.findOne({ where: { iddoutor: doutorId, clinica_cnpj: clinicaCnpj } }),
+        Servicos.findOne({ where: { idservico: servicoId, clinica_cnpj: clinicaCnpj } })
+    ])
+    if (!paciente || !doutor || !servico) {
+        return { status: 404, message: 'Paciente, profissional ou serviço não encontrado nesta clínica.' }
+    }
+
+    return {
+        dados: {
+            datahora: data,
+            doutor_iddoutor: doutorId,
+            pacientes_idpacientes: pacienteId,
+            servico_idservico: servicoId,
+            clinica_cnpj: clinicaCnpj
+        }
+    }
+}
 
 module.exports = class AgendaController {
     static async movimentoPorPlano(req, res) {
@@ -80,37 +116,40 @@ module.exports = class AgendaController {
     }
 
     static async register(req, res) {
-        const {
-            datahora,
-            doutor_iddoutor,
-            pacientes_idpacientes,
-            servico_idservico,
-        } = req.body
+        try {
+            const validacao = await validarDadosConsulta(req.body, req.user.clinica_cnpj)
+            if (validacao.status) {
+                return res.status(validacao.status).json({ message: validacao.message })
+            }
+
+            const agendamento = await Agenda.create(validacao.dados)
+            return res.status(201).json({ agendamento })
+        } catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
+    }
+
+    static async update(req, res) {
+        const idagenda = Number(req.params.idagenda)
+        if (!Number.isInteger(idagenda) || idagenda <= 0) {
+            return res.status(400).json({ message: 'Agendamento inválido.' })
+        }
 
         try {
-            const servicoId = Number(servico_idservico)
-            if (!Number.isInteger(servicoId) || servicoId <= 0) {
-                return res.status(400).json({ message: 'Selecione um serviço válido' })
+            const agendamento = await Agenda.findOne({
+                where: { idagenda, clinica_cnpj: req.user.clinica_cnpj }
+            })
+            if (!agendamento) {
+                return res.status(404).json({ message: 'Agendamento não encontrado.' })
             }
 
-            const servico = await Servicos.findOne({
-                where: {
-                    idservico: servicoId,
-                    clinica_cnpj: req.user.clinica_cnpj
-                }
-            })
-            if (!servico) {
-                return res.status(404).json({ message: 'Serviço não encontrado para esta clínica' })
+            const validacao = await validarDadosConsulta(req.body, req.user.clinica_cnpj)
+            if (validacao.status) {
+                return res.status(validacao.status).json({ message: validacao.message })
             }
 
-            const agendamento = await Agenda.create({
-                datahora,
-                doutor_iddoutor,
-                pacientes_idpacientes,
-                servico_idservico: servicoId,
-                clinica_cnpj: req.user.clinica_cnpj
-            })
-            return res.status(201).json({ agendamento })
+            await agendamento.update(validacao.dados)
+            return res.status(200).json({ message: 'Agendamento atualizado com sucesso.', agendamento })
         } catch (error) {
             return res.status(500).json({ message: error.message })
         }
