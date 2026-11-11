@@ -1,82 +1,209 @@
-# Backlog Inicial do Projeto  
-Aplicativo Móvel para Monitoramento de Máquina de Corte
+
+# Backlog do Projeto — EasyClinic
+
+**Projeto Integrado — 4º semestre | Grupo 7**  
+**Sistema:** EasyClinic — Gerenciamento Clínico
 
 ---
 
-# Visão Geral
+## Visão geral
 
-Este backlog apresenta os épicos iniciais do projeto de desenvolvimento de um aplicativo móvel responsável por capturar dados de uma máquina de corte, realizar a contagem de produção e fornecer visualizações, relatórios e resumos inteligentes com apoio de IA.
+O EasyClinic é um sistema web desenvolvido para auxiliar na organização administrativa de clínicas e consultórios. O projeto foi pensado para o Consultório Dr. Márcio Magalhães Paiva, de São José do Rio Pardo/SP.
 
-Cada funcionalidade principal foi organizada em um épico separado, permitindo maior clareza no planejamento e no desenvolvimento incremental do sistema.
+A proposta é reunir, em um mesmo lugar, os dados da clínica, dos usuários, dos pacientes, dos profissionais e dos agendamentos. Dessa forma, a rotina de cadastro e consulta de informações fica mais organizada.
 
----
+A aplicação utiliza React e TypeScript na interface, Node.js e Express na API e Sequelize com MySQL para o armazenamento dos dados. O acesso utiliza autenticação com JWT.
 
-# ÉPICO 01 – Cadastro de Usuário
+Este backlog reúne as funcionalidades já iniciadas e as melhorias previstas nos documentos de requisitos.
 
-Objetivo: Permitir que novos usuários criem uma conta no aplicativo para acessar as funcionalidades do sistema.
+### Classificação das funcionalidades
 
-O sistema deve permitir o registro de novos usuários por meio do preenchimento de dados básicos como nome, e-mail e senha. As informações devem ser validadas antes do envio e armazenadas de forma segura no sistema. Após o cadastro bem-sucedido, o usuário poderá acessar o aplicativo utilizando suas credenciais.
-
----
-
-# ÉPICO 02 – Login
-
-Objetivo: Permitir que usuários autenticados acessem o sistema com segurança.
-
-O aplicativo deve disponibilizar uma tela de autenticação onde o usuário informa seu e-mail e senha cadastrados. O sistema deverá validar as credenciais informadas e, caso estejam corretas, permitir o acesso ao sistema. Após a autenticação, o usuário será direcionado para a tela principal do aplicativo.
+- **Parcialmente implementado:** já existe uma base no sistema, mas ainda faltam ajustes ou requisitos.
+- **Previsto:** está definido nos requisitos, mas ainda não está completamente disponível na aplicação.
 
 ---
 
-# ÉPICO 03 – Recuperação de Senha
+## ÉPICO 01 — Cadastro inicial da clínica
 
-Objetivo: Permitir que usuários recuperem o acesso à conta caso esqueçam sua senha.
+**Objetivo:** Permitir o cadastro da clínica e do primeiro usuário responsável pelo sistema.
 
-O sistema deve permitir que o usuário solicite a recuperação de senha informando seu e-mail cadastrado. Após a solicitação, o sistema deverá permitir a redefinição da senha seguindo critérios de segurança, garantindo que o usuário consiga recuperar o acesso à sua conta.
+O cadastro deve receber nome e CNPJ da clínica, além de nome, e-mail e senha do primeiro usuário master. Também está prevista a criação inicial de uma tag Geral e de um plano Particular.
 
----
+**Estado:** Parcialmente implementado.
 
-# ÉPICO 04 – Edição de Perfil
+**Pendente:** Reunir a criação dos registros em uma única transação, evitando cadastros incompletos caso ocorra alguma falha.
 
-Objetivo: Permitir que o usuário visualize e atualize suas informações dentro do sistema.
-
-O aplicativo deve disponibilizar uma área de perfil onde o usuário possa visualizar seus dados cadastrados e realizar alterações quando necessário. As informações atualizadas devem ser validadas antes de serem salvas no sistema.
+**Referência:** RF01 e RF02.
 
 ---
 
-# ÉPICO 05 – Cadastro de Máquina
+## ÉPICO 02 — Login e controle de usuários
 
-Objetivo: Permitir o registro de máquinas de corte que serão monitoradas pelo aplicativo.
+**Objetivo:** Controlar o acesso dos usuários às funções administrativas do EasyClinic.
 
-O sistema deve permitir que o usuário registre novas máquinas informando dados necessários para identificação e monitoramento. Após o cadastro, a máquina ficará disponível para associação e acompanhamento de produção dentro do sistema.
+O sistema possui login com e-mail e senha e emissão de token JWT. O projeto prevê os perfis master e atendente, com permissões diferentes.
 
----
+**Estado:** Parcialmente implementado.
 
-# ÉPICO 06 – Associação de Máquina a Usuário
+**Pendente:** Completar a verificação de permissões nas rotas, o controle de usuários ativos, a revogação de sessões e as regras de manutenção dos colaboradores.
 
-Objetivo: Permitir vincular máquinas cadastradas a usuários responsáveis pelo monitoramento.
-
-O sistema deve permitir que uma máquina cadastrada seja associada a um usuário específico. Essa associação possibilita que o usuário acompanhe os dados de produção e utilize as funcionalidades de análise relacionadas à máquina vinculada.
+**Referência:** RF03, RF04, RF08 e RF09.
 
 ---
 
-# ÉPICO 07 – Dashboard
+## ÉPICO 03 — Recuperação de senha e edição do perfil
 
-Objetivo: Apresentar uma visão geral da produção monitorada no sistema.
+**Objetivo:** Permitir que os usuários atualizem suas informações e recuperem o acesso à conta.
 
-O aplicativo deve disponibilizar uma tela inicial contendo um painel com informações resumidas da produção. Esse painel permitirá ao usuário visualizar rapidamente os dados mais relevantes relacionados às máquinas monitoradas e ao desempenho da produção.
+Estão previstos a edição de nome, e-mail e senha, além da recuperação de senha por um link enviado ao e-mail cadastrado.
 
----
+**Estado:** Parcialmente implementado / previsto.
 
-# ÉPICO 08 – Gráfico de Produção Diária
+**Pendente:** Completar o fluxo de recuperação, as confirmações de segurança e a invalidação de sessões após a alteração das credenciais.
 
-Objetivo: Permitir a visualização da produção diária por meio de gráficos.
-
-O sistema deve gerar uma visualização gráfica que represente a quantidade de produção registrada ao longo do dia. Essa visualização deve permitir ao usuário compreender rapidamente o desempenho produtivo em determinado período.
+**Referência:** RF05, RF06 e RF07.
 
 ---
 
-# ÉPICO 09 – Resumo com IA
+## ÉPICO 04 — Gerenciamento de pacientes
 
-Objetivo: Gerar análises automáticas e insights inteligentes a partir dos dados coletados.
+**Objetivo:** Cadastrar e consultar os pacientes atendidos pela clínica.
 
-O sistema deve utilizar inteligência artificial para gerar um resumo interpretativo da produção registrada. Esse resumo poderá destacar padrões, variações de desempenho e possíveis insights que auxiliem o usuário na compreensão dos resultados da produção.
+O cadastro de pacientes inclui nome, CPF, e-mail, telefone, complemento, tag e plano. A aplicação já possui formulário, listagem e pesquisa de pacientes.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Completar as validações, a paginação, os filtros por situação e o processo de inativação e reativação.
+
+**Referência:** RF10 a RF13.
+
+---
+
+## ÉPICO 05 — Gerenciamento de profissionais
+
+**Objetivo:** Organizar os profissionais vinculados a cada clínica.
+
+O sistema já possui cadastro e listagem de profissionais, incluindo nome, especialidade e documento profissional.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Completar as validações dos documentos, os filtros, a paginação e as regras de inativação dos profissionais.
+
+**Referência:** RF14 a RF16.
+
+---
+
+## ÉPICO 06 — Tags e planos
+
+**Objetivo:** Permitir a classificação administrativa dos pacientes e a associação de planos.
+
+A aplicação possui estrutura para cadastrar, consultar e manter tags e planos, utilizados no cadastro de pacientes.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Validar as regras de desconto, impedir associações a registros inativos e garantir que tags e planos pertençam à clínica correta.
+
+**Referência:** RF17 e RF18.
+
+---
+
+## ÉPICO 07 — Visualização da agenda
+
+**Objetivo:** Mostrar os agendamentos de forma simples e organizada.
+
+O EasyClinic utiliza o FullCalendar para apresentar a agenda semanal, permitindo a visualização dos horários e das consultas cadastradas.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Filtrar os agendamentos pela clínica autenticada e completar os detalhes, os filtros e a indicação da situação de cada consulta.
+
+**Referência:** RF20, RF21 e RF24.
+
+---
+
+## ÉPICO 08 — Cadastro de agendamentos
+
+**Objetivo:** Permitir a criação de consultas para pacientes e profissionais cadastrados.
+
+O sistema já possui um fluxo básico de agendamento, associando data e hora, paciente, profissional e clínica.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Proteger as rotas da agenda, registrar início e término das consultas e impedir conflitos de horários.
+
+**Referência:** RF19.
+
+---
+
+## ÉPICO 09 — Acompanhamento das consultas
+
+**Objetivo:** Permitir alterações nos agendamentos durante a rotina da clínica.
+
+O sistema deverá permitir reagendar consultas e controlar suas situações: agendada, confirmada, realizada ou cancelada.
+
+**Estado:** Previsto.
+
+**Pendente:** Implementar reagendamento, cancelamento, confirmação, conclusão e regras de transição entre as situações.
+
+**Referência:** RF22 e RF23.
+
+---
+
+## ÉPICO 10 — Segurança e integridade dos dados
+
+**Objetivo:** Proteger os dados administrativos e impedir acessos indevidos.
+
+A aplicação utiliza JWT e possui validações em parte da API. Os requisitos também definem controle de permissões, proteção de senhas e isolamento das informações entre clínicas.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Padronizar a autenticação em todas as rotas administrativas, revisar as validações e aplicar as melhorias previstas para o banco de dados.
+
+**Referência:** RN01 a RN04; RNF01 a RNF05 e RNF10.
+
+---
+
+## ÉPICO 11 — Interface e experiência de uso
+
+**Objetivo:** Facilitar a navegação e o preenchimento das informações pelos usuários.
+
+A interface foi desenvolvida com React, TypeScript e Tailwind CSS, reunindo telas de acesso, cadastros, listagens e agenda.
+
+**Estado:** Parcialmente implementado.
+
+**Pendente:** Completar a integração das telas, melhorar as mensagens de validação e verificar a adaptação a diferentes tamanhos de tela.
+
+**Referência:** RNF07 e RNF08.
+
+---
+
+## ÉPICO 12 — Testes e preparação para publicação
+
+**Objetivo:** Preparar o sistema para utilização fora do ambiente local.
+
+A arquitetura separa a interface web, a API e o banco de dados. O projeto prevê configurações por ambiente, testes, proteção dos dados e procedimentos de recuperação.
+
+**Estado:** Previsto / em preparação.
+
+**Pendente:** Revisar as configurações do banco e da API, realizar os testes de funcionamento e segurança e preparar o ambiente de hospedagem.
+
+**Referência:** RNF06 e RNF09 a RNF12.
+
+---
+
+## Prioridades para a evolução
+
+1. **Agenda:** corrigir a autenticação, o isolamento por clínica e validar conflitos de horário.
+2. **Consultas:** implementar reagendamento, cancelamento e controle das situações.
+3. **Segurança:** completar as permissões e validações nas rotas.
+4. **Cadastros:** concluir as regras de manutenção de pacientes, profissionais, colaboradores, tags e planos.
+5. **Entrega:** testar os fluxos principais e preparar a publicação do sistema.
+
+---
+
+## Documentos de referência
+
+- [README do EasyClinic](../README.md)
+- [Requisitos Funcionais](rf.md)
+- [Regras de Negócio](rn.md)
+- [Requisitos Não Funcionais](rnf.md)
